@@ -14,7 +14,9 @@ public class User implements Serializable {
          this.ip = ip;
      }
 
-     public String getUsername(){
+
+
+    public String getUsername(){
          return this.username;
      }
      public String  getIp(){
@@ -36,5 +38,14 @@ public class User implements Serializable {
          if (!(obj instanceof User))return false;
          User tempUser =(User) obj;
         return this.ip.equalsIgnoreCase(tempUser.getIp());
+    }
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", ip='" + ip + '\'' +
+                '}';
     }
 }

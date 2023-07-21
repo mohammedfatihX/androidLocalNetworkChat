@@ -12,14 +12,73 @@
         android:layout_weight="1"
         android:orientation="horizontal"
     >
+       <FrameLayout
+           android:layout_width="0dp"
+           android:layout_height="match_parent"
+           android:layout_weight="1"
+           android:layout_gravity="center"
+           >
+           <ImageButton
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:layout_gravity="center_vertical"
+               android:id="@+id/beckArrow"
+               android:background="@android:color/transparent"
+               android:src="@drawable/baseline_arrow_back_ios_24"
+               />
+       </FrameLayout>
 
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            >
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:id="@+id/imageRecipient"
+                tools:src="@tools:sample/avatars"
+                android:background="@drawable/rondedimageprofile"
+                />
+        </FrameLayout>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:text="Recipient Username"
+            android:id="@+id/recipientUsernamet"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_gravity="center"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="10dp"/>
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:foregroundGravity="center"
+            >
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:id="@+id/setting_btn"
+                tools:src="@tools:sample/avatars"
+                android:background="@drawable/baseline_settings_24"/>
+
+        </FrameLayout>
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="9"
+        android:id="@+id/messagesRecycleView"
         android:orientation="horizontal"
+        tools:listitem="@layout/sender_buble_chat"
         >
 
     </androidx.recyclerview.widget.RecyclerView>
@@ -27,8 +86,40 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_marginVertical="3dp"
+        android:layout_marginHorizontal="10dp"
         android:orientation="horizontal"
         >
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="8"
+            android:layout_margin="5dp"
+            android:id="@+id/inputMessage"
+            android:background="@drawable/inputshape"
+            android:hint='send message'
+            android:autofillHints="name"
+            android:textColorHint="@color/white"
+            android:paddingLeft="4dp"
+            android:textColor="@color/white"
+            />
+       <FrameLayout
+           android:layout_width="0dp"
+           android:layout_height="match_parent"
+           android:layout_weight="1"
+           >
+
+           <ImageButton
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:id="@+id/sendmessage"
+               android:layout_gravity="center"
+               android:background="@drawable/jsendmessage"
+           />
+
+       </FrameLayout>
+
+
 
     </LinearLayout>
 

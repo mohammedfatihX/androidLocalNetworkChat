@@ -29,7 +29,7 @@ public class AppFeautre extends AppCompatActivity {
         setContentView(R.layout.activity_appfeature);
         next = findViewById(R.id.nextbutton);
 
-         fragmentManager = getSupportFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         transaction = fragmentManager.beginTransaction();
         transaction.add(R.id.contentfragment,new FirstFragment());
         transaction.addToBackStack(null);

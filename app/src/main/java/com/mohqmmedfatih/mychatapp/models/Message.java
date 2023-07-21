@@ -1,14 +1,13 @@
 package com.mohqmmedfatih.mychatapp.models;
 
 import androidx.annotation.NonNull;
+import androidx.room.Entity;
 
 import com.mohqmmedfatih.mychatapp.tools.Tools;
 
 import java.io.Serializable;
-
 public class Message implements Serializable {
     private static final long serialVersionUID = 6529685098267757690L;
-
 
     private String messageText;
     private MessageType type;
@@ -34,12 +33,17 @@ public class Message implements Serializable {
     public String getDate(){
         return this.date;
     }
+    public User getSender(){
+        return this.sender;
+    }
 
     @Override
     public String toString() {
         return "Message{" +
                 "messageText='" + messageText + '\'' +
                 ", type=" + type +
+                ", date='" + date + '\'' +
+                ", sender=" + sender +
                 '}';
     }
 }

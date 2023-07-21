@@ -8,7 +8,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/contentfragment"
-        android:name="com.mohqmmedfatih.mychatapp.fragment.FirstFragment"
         app:layout_constraintBottom_toTopOf="@+id/nextbutton"
         app:layout_constraintTop_toTopOf="parent" />
 

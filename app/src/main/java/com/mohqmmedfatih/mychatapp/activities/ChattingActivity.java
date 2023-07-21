@@ -1,15 +1,21 @@
 package com.mohqmmedfatih.mychatapp.activities;
 
+import static com.mohqmmedfatih.mychatapp.tools.Config.WHOLECHAT;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mohqmmedfatih.mychatapp.R;
+import com.mohqmmedfatih.mychatapp.fragment.ChatUserFragment;
 import com.mohqmmedfatih.mychatapp.fragment.DialogFragment;
+import com.mohqmmedfatih.mychatapp.fragment.ListUserfragment;
 import com.mohqmmedfatih.mychatapp.interfaces.InputListener;
 import com.mohqmmedfatih.mychatapp.models.Message;
 import com.mohqmmedfatih.mychatapp.models.MessageType;
@@ -22,33 +28,30 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 
-public class ChattingActivity extends AppCompatActivity implements InputListener {
+public class ChattingActivity extends AppCompatActivity implements InputListener , ChatUserFragment.ButtonVisibilityListener {
 
     private FloatingActionButton addUserbutton;
     private final String TAG = "ChattingActivity";
     private ServerSocket serverSocket;
-    public ArrayList<User> users ;
-
+    private FragmentManager fragmentManager;
+    private FragmentTransaction transaction;
+    private ListUserfragment userListFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatting);
         addUserbutton = findViewById(R.id.addUsers_btn);
-        users = new ArrayList<>(10);
-        users.add(Config.me);
+        WHOLECHAT.put(Config.me, new ArrayList<>());
        startServerSocketListening();
         addUserbutton.setOnClickListener(event -> {
             alertDialogBuilder();
-
-           /* AddUserInputIpDialog dialog = new AddUserInputIpDialog(ChattingActivity.this) {
-                @Override
-                public void onClickListener(String ip) {
-                    Log.e(TAG,"ip from Dialog is  : "+ip);
-                }
-            };*/
         });
-
-
+        userListFragment = new ListUserfragment();
+        fragmentManager = getSupportFragmentManager();
+        transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.fragmentplace, userListFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
 
     }
 
@@ -85,18 +88,41 @@ public class ChattingActivity extends AppCompatActivity implements InputListener
     private void messageFiltering( Message message){
         switch(message.getMessageType()){
             case MESSAGE:
-                Toast.makeText(ChattingActivity.this,"we have recived a message",Toast.LENGTH_SHORT);
+               // Toast.makeText(ChattingActivity.this,"we have recived a message",Toast.LENGTH_SHORT);
+                if (WHOLECHAT.isUserExist(message.getSender())){
+                    WHOLECHAT.get(message.getSender()).add(message);
+                    runOnUiThread(()->{
+                        userListFragment.chatUserFragment.onReceivedNewMessage(message);
+
+                    });
+                }else {
+                    welcomingUsers(message.getSender());
+                }
+
                 break;
 
             case NEWCONNECTION:
-                Toast.makeText(ChattingActivity.this,"we have recived a message",Toast.LENGTH_SHORT);
+               // Toast.makeText(ChattingActivity.this,"we have recived a user",Toast.LENGTH_SHORT);
+
+                Log.e(TAG,"the message recieved is  : "+message);
+                if(WHOLECHAT.isUserExist(message.getSender())){
+
+
+                }else {
+                    welcomingUsers(message.getSender());
+                    WHOLECHAT.put(message.getSender(),new ArrayList<>());
+                    runOnUiThread(()->{
+                        userListFragment.onReceivedNewUser(message.getSender());
+
+                    });
+                }
+
 
 
                 break;
 
 
             case CLOSECONNCTION:
-                Toast.makeText(ChattingActivity.this,"we have recived a message",Toast.LENGTH_SHORT);
 
 
                 break;
@@ -108,14 +134,27 @@ public class ChattingActivity extends AppCompatActivity implements InputListener
         new Thread(new ClientConnectionHandler(recepient,message)).start();
     }
 
-    private void newConnectionMessage(User recepient){
-        Message message = new Message(MessageType.NEWCONNECTION,null,recepient);
-        new Thread(new ClientConnectionHandler(recepient,message)).start();
-    }
+
 
 
     @Override
     public void onClickListener(String ip) {
-        Toast.makeText(this, "ip add is : "+ip, Toast.LENGTH_SHORT).show();
+        welcomingUsers(new User(ip,"user"));
+    }
+
+
+    public void welcomingUsers(User user){
+        Message message = new Message(MessageType.NEWCONNECTION,null,Config.me);
+        new Thread(new ClientConnectionHandler(user,message)).start();
+
+    }
+
+    @Override
+    public void onButtonVisibilityChanged(boolean isVisible) {
+        if (isVisible) {
+            addUserbutton.setVisibility(View.VISIBLE);
+        } else {
+            addUserbutton.setVisibility(View.GONE);
+        }
     }
 }

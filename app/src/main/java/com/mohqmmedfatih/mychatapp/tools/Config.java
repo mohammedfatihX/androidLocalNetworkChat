@@ -7,11 +7,15 @@ import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
 import android.util.Log;
 
+import com.mohqmmedfatih.mychatapp.models.Message;
 import com.mohqmmedfatih.mychatapp.models.User;
+import com.mohqmmedfatih.mychatapp.models.UsersChat;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 
 public class Config {
     private static final String TAG = "Config";
@@ -20,6 +24,7 @@ public class Config {
     public static volatile String MainReceiver;
     public static volatile boolean isAppWorking = true;
     public static  User  me  ;
+    public  volatile static UsersChat WHOLECHAT = new UsersChat();
 
 
     public static String getMyIp(Context context) {

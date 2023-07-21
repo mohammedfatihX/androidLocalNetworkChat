@@ -23,8 +23,7 @@
                 android:layout_height="match_parent"
                 android:id="@+id/myimage"
                 tools:src="@tools:sample/avatars"
-                android:background="@drawable/rondedimageprofile"/>
-
+            />
         </FrameLayout>
 
         <TextView
@@ -60,6 +59,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginHorizontal="5dp"
+        android:id="@+id/userLists"
         android:layout_weight="7"
         tools:listitem="@layout/user_ui"
         >
