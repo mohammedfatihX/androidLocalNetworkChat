@@ -1,45 +1,79 @@
 package com.mohqmmedfatih.mychatapp.services;
 
-import android.os.AsyncTask;
+import android.annotation.SuppressLint;
 import android.util.Log;
-
 import com.mohqmmedfatih.mychatapp.models.Message;
-import com.mohqmmedfatih.mychatapp.tools.Config;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public abstract class ServerConnectionsHandler extends AsyncTask<ServerSocket,Void,Void> {
-    private String TAG = "ServerConnectionsHandler";
+public abstract class ServerConnectionsHandler {
 
-    public abstract void newMessageIsRecieved(com.mohqmmedfatih.mychatapp.models.Message message);
+    private static final String TAG = "ServerConnectionsHandler";
+    private final int NUMBER_OF_THREADS = 1;
+    private ExecutorService executorService;
+    private ServerSocket serverSocket;
 
-    @Override
-    protected Void doInBackground(ServerSocket... serverSockets) {
+    public void startListening(ServerSocket serverSocket) {
+        this.serverSocket = serverSocket;
+        executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+      /*  Thread thread = new Thread(connectionTask);
+        thread.setDaemon(true);*/
+        executorService.execute(connectionTask);
+    }
 
-        try{
-
-            while (Config.isAppWorking){
-                Log.e(TAG,"server is listening ......");
-                Socket socket = serverSockets[0].accept();
-                ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-                Log.e(TAG,"we have recieve something "+objectInputStream.available());
-                Message messageReceived = (com.mohqmmedfatih.mychatapp.models.Message) objectInputStream.readObject();
-                Log.e(TAG,"we have message ");
-                objectInputStream.close();
-                socket.close();
-                Log.e(TAG,"the we close the socket to listening foir other reauest");
-                newMessageIsRecieved(messageReceived);
+    @SuppressLint("LongLogTag")
+    public void stopListening() {
+        try {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
             }
-
-        }catch(Exception e){
-            Log.e(TAG,"we have error in server listening and the error is :"+e.getMessage());
+        } catch (IOException e) {
+            Log.e(TAG, "Error closing server socket: " + e.getMessage());
             e.printStackTrace();
         }
-
-
-        return null;
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.shutdownNow();
+        }
     }
+
+    private final Runnable connectionTask = new Runnable() {
+        @SuppressLint("LongLogTag")
+        @Override
+        public void run() {
+            try {
+                while (!executorService.isShutdown()) {
+                    Log.e(TAG, "Server is listening ......");
+                    Socket socket = serverSocket.accept();
+                    processSocket(socket);
+                }
+            } catch (IOException e) {
+                if (!executorService.isShutdown()) {
+                    Log.e(TAG, "Error accepting client connection: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
+    @SuppressLint("LongLogTag")
+    private void processSocket(Socket socket) {
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream())) {
+            Log.d(TAG, "Received data from client");
+            Message messageReceived = (Message) objectInputStream.readObject();
+            objectInputStream.close();
+            socket.close();
+            Log.d(TAG, "Socket closed for client");
+            newMessageIsReceived(messageReceived);
+        } catch (Exception e) {
+            Log.e(TAG, "Error processing client data: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public abstract void newMessageIsReceived(Message message);
 }

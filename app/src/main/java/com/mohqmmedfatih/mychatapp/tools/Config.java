@@ -8,6 +8,7 @@ import android.text.format.Formatter;
 import android.util.Log;
 
 import com.mohqmmedfatih.mychatapp.models.Message;
+import com.mohqmmedfatih.mychatapp.models.Sender;
 import com.mohqmmedfatih.mychatapp.models.User;
 import com.mohqmmedfatih.mychatapp.models.UsersChat;
 
@@ -23,8 +24,9 @@ public class Config {
     public static final int MAINPORT = 20000;
     public static volatile String MainReceiver;
     public static volatile boolean isAppWorking = true;
-    public static  User  me  ;
-    public  volatile static UsersChat WHOLECHAT = new UsersChat();
+    public static Sender me ;
+
+    //public  volatile static UsersChat WHOLECHAT = new UsersChat();
 
 
     public static String getMyIp(Context context) {

@@ -1,16 +1,18 @@
 package com.mohqmmedfatih.mychatapp.fragment;
 
-import static com.mohqmmedfatih.mychatapp.tools.Config.WHOLECHAT;
-import static com.mohqmmedfatih.mychatapp.tools.Config.me;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.media.Image;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,13 +34,20 @@ import com.mohqmmedfatih.mychatapp.adapter.ChatBublesAdapter;
 import com.mohqmmedfatih.mychatapp.interfaces.UpdateMessageFragmentListener;
 import com.mohqmmedfatih.mychatapp.models.Message;
 import com.mohqmmedfatih.mychatapp.models.MessageType;
+import com.mohqmmedfatih.mychatapp.models.Receiver;
+import com.mohqmmedfatih.mychatapp.models.Sender;
 import com.mohqmmedfatih.mychatapp.models.User;
 import com.mohqmmedfatih.mychatapp.services.ClientConnectionHandler;
 import com.mohqmmedfatih.mychatapp.tools.Config;
+import com.mohqmmedfatih.mychatapp.viewModel.ChatViewModel;
+
+import java.util.List;
+import java.util.Objects;
 
 
 public class ChatUserFragment extends Fragment implements UpdateMessageFragmentListener {
     private FragmentManager fragmentManager;
+    private ChatViewModel chatViewModel;
     private final String TAG = "ChatUserFragment";
     private RecyclerView chatUserRecyclerView;
     private ChatBublesAdapter chatAdapter;
@@ -49,7 +58,7 @@ public class ChatUserFragment extends Fragment implements UpdateMessageFragmentL
     private TextView recipientUsername;
     private Button setting_btn;
     private EditText message;
-    private User recipient;
+    private Receiver receiver;
     private ImageButton send;
     public ChatUserFragment() {
         // Required empty public constructor
@@ -82,8 +91,8 @@ public class ChatUserFragment extends Fragment implements UpdateMessageFragmentL
 
         Bundle args = getArguments();
         if (args != null) {
-            recipient = (User) args.getSerializable("recipient");
-            Log.e(TAG,"the recipient is  : "+recipient);
+            receiver = (Receiver) args.getSerializable("recipient");
+            Log.e(TAG,"the recipient is  : "+receiver);
         }
         chatUserRecyclerView = rootView.findViewById(R.id.messagesRecycleView);
         back = rootView.findViewById(R.id.beckArrow);
@@ -94,19 +103,19 @@ public class ChatUserFragment extends Fragment implements UpdateMessageFragmentL
         send = rootView.findViewById(R.id.sendmessage);
 
 
-        chatAdapter = new ChatBublesAdapter(recipient);
+        chatAdapter = new ChatBublesAdapter(receiver);
         chatUserRecyclerView.setAdapter(chatAdapter);
         chatUserRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         fragmentManager = requireActivity().getSupportFragmentManager();
-        recipientUsername.setText(recipient.getUsername());
-        userimage.setImageDrawable(AvatarGenerator.Companion.avatarImage(getContext(),120, AvatarConstants.Companion.getCIRCLE(), recipient.getUsername()));
+        recipientUsername.setText(receiver.getUsername());
+        userimage.setImageDrawable(AvatarGenerator.Companion.avatarImage(getContext(),120, AvatarConstants.Companion.getCIRCLE(), receiver.getUsername()));
 
         send.setOnClickListener(event ->{
             Log.e(TAG,"a button is clicked");
-
-            Message tempMesssage = new Message(MessageType.MESSAGE,message.getText().toString(), Config.me);
-            sendMessage(recipient,tempMesssage);
+            Message tempMesssage = new Message(MessageType.MESSAGE,message.getText().toString(),Config.me,receiver.getUuidReceiver());
+            Log.e(TAG," the message that will be send is  : "+tempMesssage);
+            sendMessage(receiver,tempMesssage);
         });
         back.setOnClickListener(event -> {
             Log.e(TAG,"a button is clicked");
@@ -114,24 +123,39 @@ public class ChatUserFragment extends Fragment implements UpdateMessageFragmentL
             fragmentManager.popBackStack();
         });
 
+
         // Inflate the layout for this fragment
         return rootView;
     }
 
-
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        //chatViewModel = ViewModelProviders.of((FragmentActivity) getContext()).get(ChatViewModel.class);
+        chatViewModel = new ChatViewModel(requireActivity().getApplication(),receiver);
+        //chatViewModel.setRecipient(recipient);
+        chatViewModel.getAllMessagesByUser().observe(getActivity(), messages -> {
+            chatAdapter.setListMessages(messages);
+            Log.e(TAG," chat model view detect a new message update in database");
+        });
+    }
 
     private void sendMessage(User recipeint, Message message){
-        WHOLECHAT.get(recipeint).add(message);
+        chatViewModel.insert(message);
         new Thread(new ClientConnectionHandler(recipeint,message)).start();
-        chatAdapter.notifyItemInserted(Config.WHOLECHAT.get(recipient).size());
+//        WHOLECHAT.get(recipeint).add(message);
+
+        // chatAdapter.notifyItemInserted(Config.WHOLECHAT.get(recipient).size());
         this.message.setText(null);
     }
 
     @Override
     public void onReceivedNewMessage(Message message) {
-        Log.e(TAG, "new Message is recieved: " + WHOLECHAT.getLastindex());
-
-        chatAdapter.notifyItemInserted(Config.WHOLECHAT.get(recipient).size());
+        Log.e(TAG, "new Message is recieved: " + message);
+        Message tempMessage =new Message(MessageType.MESSAGE,message.getMessageText(),(Sender) message.getSender(),Config.me.getUuidSender());
+        tempMessage.setDate(message.getDate());
+        chatViewModel.insert(tempMessage);
+//        chatAdapter.notifyItemInserted(Config.WHOLECHAT.get(recipient).size());
     }
 
 

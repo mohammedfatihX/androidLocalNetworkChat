@@ -1,5 +1,6 @@
 package com.mohqmmedfatih.mychatapp.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,20 +11,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mohqmmedfatih.mychatapp.R;
 import com.mohqmmedfatih.mychatapp.models.Message;
+import com.mohqmmedfatih.mychatapp.models.Receiver;
 import com.mohqmmedfatih.mychatapp.models.User;
 import com.mohqmmedfatih.mychatapp.tools.Config;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class ChatBublesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private User user;
     private static final int VIEW_TYPE_SENT = 1;
     private static final int VIEW_TYPE_RECEIVED = 2;
-    private ArrayList<Message> messages;
+    private List<Message> messages = new ArrayList<>();
+    private Receiver receiver;
 
-    public ChatBublesAdapter(User user){
-        messages = Config.WHOLECHAT.get(user);
+    public ChatBublesAdapter(Receiver receiver){
+        this.receiver = receiver;
     }
 
     @NonNull
@@ -56,14 +61,23 @@ public class ChatBublesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public int getItemCount() {
         return messages.size();
     }
+    public void setListMessages(List<Message> newMessages){
+        messages = newMessages;
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getItemViewType(int position) {
+        Log.e("chatbuble","this the receiver  "+ receiver);
+        Log.e("chatbuble","this messages  :  "+messages);
+        if ((messages.get(position)).getUuidSender().equals(receiver.getUuidReceiver())){
+            Log.e("chatbuble","this message is received");
 
-        if (messages.get(position).getSender() == Config.me){
-            return VIEW_TYPE_SENT;
-        }else {
             return VIEW_TYPE_RECEIVED;
+        }else {
+            Log.e("chatbuble","this message is ME");
+
+            return VIEW_TYPE_SENT ;
         }
     }
 
