@@ -13,7 +13,7 @@ import android.view.View;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mohqmmedfatih.mychatapp.R;
 import com.mohqmmedfatih.mychatapp.fragment.ChatUserFragment;
-import com.mohqmmedfatih.mychatapp.fragment.DialogFragment;
+import com.mohqmmedfatih.mychatapp.Dialog.AddingReceiverDialogFragment;
 import com.mohqmmedfatih.mychatapp.fragment.ListUserfragment;
 import com.mohqmmedfatih.mychatapp.interfaces.InputListener;
 
@@ -44,7 +44,7 @@ public class ChattingActivity extends AppCompatActivity implements InputListener
 
 
     private void alertDialogBuilder(){
-        DialogFragment tt = new DialogFragment();
+        AddingReceiverDialogFragment tt = new AddingReceiverDialogFragment();
         tt.show(getSupportFragmentManager(),"dialog input");
     }
 

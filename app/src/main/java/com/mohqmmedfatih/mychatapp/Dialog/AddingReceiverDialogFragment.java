@@ -1,10 +1,8 @@
-package com.mohqmmedfatih.mychatapp.fragment;
+package com.mohqmmedfatih.mychatapp.Dialog;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,11 +15,10 @@ import androidx.annotation.Nullable;
 
 import com.mohqmmedfatih.mychatapp.R;
 import com.mohqmmedfatih.mychatapp.interfaces.InputListener;
-import com.mohqmmedfatih.mychatapp.interfaces.ItemListener;
 
 import java.io.IOException;
 
-public  class DialogFragment extends androidx.fragment.app.DialogFragment {
+public  class AddingReceiverDialogFragment extends androidx.fragment.app.DialogFragment {
     public final String TAG = "DialogFragment ";
     private  InputListener inputListener;
     @SuppressLint("ResourceType")
@@ -30,9 +27,9 @@ public  class DialogFragment extends androidx.fragment.app.DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
         Dialog builder = new Dialog(getActivity());
-        LayoutInflater infalter = requireActivity().getLayoutInflater();
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
 
-        builder.setContentView(infalter.inflate(R.layout.dialog_add_user,null));
+        builder.setContentView(inflater.inflate(R.layout.dialog_add_user,null));
 
         Button ok = builder.findViewById(R.id.addUsers_btn);
         Button cancel = builder.findViewById(R.id.cancel_button);

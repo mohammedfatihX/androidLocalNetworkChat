@@ -27,6 +27,9 @@ public interface ReceiverDAO {
     @Query("SELECT * FROM receivers WHERE uuidReceiver  = :uuidReceiver")
      Receiver getReceiverByUuid(UUID uuidReceiver);
 
+    @Query("SELECT * FROM receivers WHERE ip = :ipReceiver")
+    Receiver getReceiverByIP(String ipReceiver);
+
     @Query("SELECT * FROM receivers")
     LiveData<List<Receiver>> getAllReceiver();
 }

@@ -12,6 +12,7 @@ import com.mohqmmedfatih.mychatapp.services.Appdatabase;
 
 import org.w3c.dom.ls.LSInput;
 
+import java.security.PublicKey;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,10 +34,12 @@ public class ReceiverRepository {
         new UpdateReceiverAsyncTask(receiverDAO).execute(receiver);
     }
 
+
     public void deleteReceiver(Receiver receiver){
         new DeleteReceiverAsyncTask(receiverDAO).execute(receiver);
 
     }
+
     public LiveData<List<Receiver>> getallReceivers(){
        LiveData<List<Receiver>> getAllReciever = null;
        try{
@@ -55,6 +58,15 @@ public class ReceiverRepository {
             return null;
         }
 
+    }
+
+    public Receiver getReceiverByIP(String ip){
+        try{
+            return new FindReceiverByIP(receiverDAO).execute(ip).get();
+        }catch (Exception e){
+            Log.e(TAG,"error finding Receiver : "+e.getMessage());
+            return null;
+        }
     }
 
 
@@ -111,6 +123,18 @@ public class ReceiverRepository {
         }
     }
 
+
+    private static class FindReceiverByIP extends AsyncTask<String,Void,Receiver>{
+        private ReceiverDAO receiverDAO;
+        public FindReceiverByIP(ReceiverDAO receiverDAO){
+            this.receiverDAO = receiverDAO;
+        }
+        @Override
+        protected Receiver doInBackground(String... strings) {
+            receiverDAO.getReceiverByIP(strings[0]);
+            return null;
+        }
+    }
     private static class GetAllReceivers extends AsyncTask<Void,Void,LiveData<List<Receiver>>>{
 
         private ReceiverDAO receiverDAO;

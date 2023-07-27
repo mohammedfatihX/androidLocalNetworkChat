@@ -47,15 +47,33 @@ public abstract class Appdatabase extends RoomDatabase {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
+
             Log.e(TAG,"call room callback is start mow and onCreate function ");
         }
 
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
             super.onOpen(db);
+            new addusers(instance.receiverDAO()).execute();
             Log.e(TAG,"call room callback is start mow and onOpen function ");
            // new OpenDataAsyncTask(instance).execute();
         }
     };
+
+
+    private static class addusers extends AsyncTask<Void,Void,Void>{
+
+        private ReceiverDAO receiverDAO;
+        public addusers(ReceiverDAO receiverDAO){
+            this.receiverDAO = receiverDAO;
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            receiverDAO.inserReceiver(new Receiver("simo","192.168.1.7",null,UUID.randomUUID()));
+            receiverDAO.inserReceiver(new Receiver("krimo","192.168.1.8",null,UUID.randomUUID()));
+            receiverDAO.inserReceiver(new Receiver("rayanm","192.168.1.9",null,UUID.randomUUID()));
+            return null;
+        }
+    }
 
 }

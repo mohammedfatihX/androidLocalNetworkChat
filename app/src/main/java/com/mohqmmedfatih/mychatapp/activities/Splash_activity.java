@@ -44,7 +44,7 @@ public class Splash_activity extends AppCompatActivity {
             senderRepository.insertSender(new Sender("super Me",Config.getMyIp(Splash_activity.this),tagME, UUID.randomUUID()));
         }
         handler = new Handler();
-        handler.postDelayed(this::nextActivity,5000);
+        handler.postDelayed(this::nextActivity,10000);
 
     }
 

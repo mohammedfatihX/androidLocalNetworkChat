@@ -3,9 +3,13 @@ package com.mohqmmedfatih.mychatapp.fragment;
 
 import android.annotation.SuppressLint;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -15,15 +19,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.avatarfirst.avatargenlib.AvatarConstants;
 import com.avatarfirst.avatargenlib.AvatarGenerator;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import com.mohqmmedfatih.mychatapp.Dialog.AddingReceiverDialogFragment;
+import com.mohqmmedfatih.mychatapp.Dialog.EditingReceiver;
 import com.mohqmmedfatih.mychatapp.R;
 import com.mohqmmedfatih.mychatapp.adapter.UserAdapter;
+import com.mohqmmedfatih.mychatapp.interfaces.UpdateReceiverListener;
 import com.mohqmmedfatih.mychatapp.interfaces.UpdateUserFragmetListener;
 import com.mohqmmedfatih.mychatapp.models.Message;
 import com.mohqmmedfatih.mychatapp.models.MessageType;
@@ -37,8 +49,9 @@ import com.mohqmmedfatih.mychatapp.viewModel.ReceiverViewModel;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.List;
 
-public class ListUserfragment extends Fragment implements UpdateUserFragmetListener {
+public class ListUserfragment extends Fragment implements UpdateUserFragmetListener ,UpdateReceiverListener{
 
     final static String TAG = "ListUserfragment";
     public static ReceiverViewModel receiverViewModel;
@@ -49,7 +62,7 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
     Button setting;
     UserAdapter userAdapter;
     public static ChatUserFragment chatUserFragment;
-
+   // public  static  EditingReceiver tt ;
 
 
     public ListUserfragment() {
@@ -72,15 +85,14 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
         setting = root.findViewById(R.id.setting_btn);
         recyclerViewListUser = root.findViewById(R.id.userLists);
         userAdapter = new UserAdapter(getContext(), user -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                receiverViewModel.getAllUsers().getValue().forEach(receiver -> Log.e(TAG,"receiver in the database is : "+receiver));
-            }
+
+
             chatUserFragment = ChatUserFragment.newInstance(user);
             FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
            fragmentManager.beginTransaction().
             replace(R.id.fragmentplace,chatUserFragment).
             commit();
-        });
+        },this);
 
 
         recyclerViewListUser.setAdapter(userAdapter);
@@ -134,6 +146,8 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
         }
     }
 
+
+
     public static void welcomingUsers(User user){
         Message message = new Message(MessageType.NEWCONNECTION,null,Config.me,null);
         new Thread(new ClientConnectionHandler(user,message)).start();
@@ -181,6 +195,82 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
         }
     }
 
+//    private void updateDialogBuilder(Receiver receiver){
+//         tt = new EditingReceiver() {
+//            @Override
+//            public void ipIsCorrect(String Ip) {
+//                receiver.setIp(Ip);
+//                 receiverViewModel.update(receiver);
+//            }
+//        };
+//        tt.show(requireActivity().getSupportFragmentManager(),"dialog input");
+//    }
+
+    @Override
+    public void onReceiverUpdated(Receiver receiver) {
+//            updateDialogBuilder(receiver);
+        editIpaddressforReceiver(receiver);
+    }
+
+    @Override
+    public void onRecevierRemoved(Receiver receiver) {
+        receiverViewModel.delete(receiver);
+        Snackbar.make(getActivity().findViewById(R.id.rooView),"the user "+receiver.getUsername()+" is Removed ",Snackbar.LENGTH_LONG).show();
+
+    }
+
+
+
+
+        public  boolean checkIpAddressIsConnected(String ip)  {
+            //TODO: to make your program is work for all platform you need change the command of "ping -c 1 " because in windows -c is -n so try to figure it out
+            Process p1 = null;
+            int returnVal = 2;
+
+            try {
+                p1 = Runtime.getRuntime().exec("ping -c 1 "+ip);
+                returnVal = p1.waitFor();
+            } catch (IOException | InterruptedException e) {
+                Log.e(TAG,"the ip you have check is invalid or incorrect more error  info " + e.getMessage());
+                return (returnVal==0);
+            }
+
+            return (returnVal==0);
+        }
+
+
+    private void editIpaddressforReceiver(Receiver receiver){
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        builder
+            .setView(R.layout.dialog_edit_user)
+                .setPositiveButton("Update", (dialogInterface, i) -> {
+                    EditText editText = ((AlertDialog) dialogInterface).findViewById(R.id.ipRecipient);
+                    String userInput = editText.getText().toString().trim();
+                        if (checkIpAddressIsConnected(userInput)){
+                                receiver.setIp(userInput);
+                                receiverViewModel.update(receiver);
+                            Snackbar.make(getActivity().findViewById(R.id.rooView),"the user "+receiver.getUsername()+" is updated ",Snackbar.LENGTH_LONG).show();
+
+                        }else {
+                            Toast.makeText(requireActivity(), "the ip you have entered is not valid or not connected", Toast.LENGTH_SHORT).show();
+                        }
+
+                })
+                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+
+
+
+            AlertDialog alertDialog = builder.create();
+
+            alertDialog.show();
+
+
+    }
 
 
 }

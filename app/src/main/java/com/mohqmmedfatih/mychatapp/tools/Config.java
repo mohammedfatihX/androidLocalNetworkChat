@@ -1,22 +1,10 @@
 package com.mohqmmedfatih.mychatapp.tools;
 
-import static androidx.core.content.ContentProviderCompat.requireContext;
-
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
-import android.util.Log;
 
-import com.mohqmmedfatih.mychatapp.models.Message;
 import com.mohqmmedfatih.mychatapp.models.Sender;
-import com.mohqmmedfatih.mychatapp.models.User;
-import com.mohqmmedfatih.mychatapp.models.UsersChat;
-
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
 
 public class Config {
     private static final String TAG = "Config";

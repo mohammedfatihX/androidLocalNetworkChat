@@ -31,8 +31,12 @@ public class ReceiverViewModel extends AndroidViewModel {
     public void delete(Receiver receiver) {
         receiverRepository.deleteReceiver(receiver);
     }
-    public User getById(UUID uuidReceiver) {
+    public Receiver getById(UUID uuidReceiver) {
        return receiverRepository.getReceiverByUuid(uuidReceiver);
+    }
+
+    public Receiver getReceiverByIP(String ip){
+        return receiverRepository.getReceiverByIP(ip);
     }
     public LiveData<List<Receiver>> getAllUsers(){
         return getallReceivers ;

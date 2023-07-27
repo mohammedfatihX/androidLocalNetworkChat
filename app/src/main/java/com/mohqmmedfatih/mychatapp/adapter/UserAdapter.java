@@ -5,10 +5,14 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,9 +22,10 @@ import com.avatarfirst.avatargenlib.AvatarConstants;
 import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.mohqmmedfatih.mychatapp.R;
 import com.mohqmmedfatih.mychatapp.interfaces.ItemListener;
+import com.mohqmmedfatih.mychatapp.interfaces.UpdateReceiverListener;
+import com.mohqmmedfatih.mychatapp.models.MenuOption;
 import com.mohqmmedfatih.mychatapp.models.Receiver;
-import com.mohqmmedfatih.mychatapp.models.User;
-import com.mohqmmedfatih.mychatapp.tools.Config;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,9 +33,12 @@ import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
     private Context context;
+    private final String TAG = "UserAdapter";
      ItemListener itemListener;
+     UpdateReceiverListener updateReceiverListener;
      private List<Receiver> receivers = new ArrayList<>();
-    public UserAdapter(Context context, ItemListener itemListener){
+    public UserAdapter(Context context, ItemListener itemListener,UpdateReceiverListener updateReceiverListener){
+        this.updateReceiverListener = updateReceiverListener;
         this.itemListener = itemListener;
         this.context = context;
 
@@ -57,6 +65,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
            holder.lastMessageDate.setText("");
            holder.lastMessage.setText("");
        }
+
+
     }
 
     @Override
@@ -69,7 +79,34 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
         notifyDataSetChanged();
     }
 
-    public  class  UserHolder extends RecyclerView.ViewHolder{
+    private void showContextMenu (View v,Receiver tempreceiver){
+        PopupMenu popupMenu = new PopupMenu(context,v);
+        popupMenu.inflate(R.menu.menu_user_option);
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            final MenuOption option = checkTheResources(menuItem);
+            switch (option){
+                case update:
+                    Log.e(TAG,"the option menu is created and the option update is the choosen one");
+                     updateReceiverListener.onReceiverUpdated(tempreceiver);
+                    return true;
+
+                case remove:
+                    Log.e(TAG,"the option menu is created and the option removed is the choosen one");
+                    updateReceiverListener.onRecevierRemoved(tempreceiver);
+
+                    return true;
+
+
+                default :
+
+                    Log.e(TAG,"the option menu is created and but selected option is default");
+                    return false;
+            }
+
+        });
+        popupMenu.show();
+    }
+    public  class  UserHolder extends RecyclerView.ViewHolder {
         public TextView recipientUsername;
         public TextView lastMessage;
         public TextView lastMessageDate;
@@ -85,7 +122,22 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
             itemView.setOnClickListener(view -> {
                 itemListener.onclickListener(receivers.get(getAdapterPosition()));
             });
+            itemView.setOnLongClickListener(event ->{
+                showContextMenu(userUI,receivers.get(getAdapterPosition()));
+                return true;
+            });
+        }
 
+
+    }
+
+    private MenuOption checkTheResources(MenuItem menuItem){
+        if (menuItem.getItemId() == MenuOption.update.getResources()){
+            return MenuOption.update;
+        }else if (menuItem.getItemId() == MenuOption.remove.getResources()){
+            return  MenuOption.remove;
+        }else {
+            return MenuOption.none;
         }
     }
 }
