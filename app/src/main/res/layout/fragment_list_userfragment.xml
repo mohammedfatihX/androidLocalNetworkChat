@@ -49,9 +49,9 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_gravity="center"
-                android:id="@+id/setting_btn"
+                android:id="@+id/addUsers_btn"
                 tools:src="@tools:sample/avatars"
-                android:background="@drawable/baseline_settings_24"/>
+                android:background="@drawable/baseline_person_add_24"/>
 
         </FrameLayout>
 

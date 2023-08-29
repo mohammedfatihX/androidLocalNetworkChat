@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.mohqmmedfatih.mychatapp'
+    namespace 'com.mohammedfatih.mychatapp'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.mohqmmedfatih.mychatapp"
+        applicationId "com.mohammedfatih.mychatapp"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -35,7 +35,6 @@ dependencies {
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.github.AmosKorir:AvatarImageGenerator:v1.5.0'
-
 
     implementation("androidx.room:room-runtime:2.5.2")
     annotationProcessor("androidx.room:room-compiler:2.5.2")
