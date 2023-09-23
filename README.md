@@ -32,16 +32,22 @@ This is a chat app that works locally (in local wifi ).
       
   ### Fragment
 
-  - for the fragment first use is in the **AppFeature.class** and use to pass multiple graphic image in the same activity . 
-        ***PS** : i could just use normal array and pass the images and then in activity loop the array , but i try to test my use fragemt for my teacher*.
-   - for thew second times i used in the **ChattingActivity** and i use it to make easy moving between the chating interface and the user interface .
+  - for the fragment first use is in the **AppFeature.class** and use to
+    pass multiple graphic image in the same activity . 
+        ***PS** : i could just use normal array and pass the images and
+        then in activity loop the array , but i try to test my use fragemt for my teacher*.
+   - for thew second times i used in the **ChattingActivity** and i use it to make it easy to
+         moving between the chating interface and the user interface .
   ### Android menu
   
-  - i use  to update the the ip of the peers in your side **"when you do long press on user it will pop up menu dialog to that have 2 option remove user you pressed on or update "**.
+  - i use  to update the the ip of the peers in your side
+     **"when you do long press on user it will pop up menu dialog
+    to that have 2 option remove user you pressed on or update "**.
 
   ### Custom dialog
   
-  - for custom dialog i used simple custom diaog that uve 2 button **cancel** or **ok** and input field to entre the info of user.
+  - for custom dialog i used simple custom diaog that use 2 button
+     **cancel** or **ok** and input field to entre the info of user.
 
 ## The app features are:
 
