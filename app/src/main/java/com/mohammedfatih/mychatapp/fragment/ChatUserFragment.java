@@ -1,6 +1,9 @@
 package com.mohammedfatih.mychatapp.fragment;
 
 
+import static com.mohammedfatih.mychatapp.fragment.ListUserfragment.receiverViewModel;
+
+import android.app.AlertDialog;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -22,10 +25,14 @@ import android.widget.Toast;
 
 import com.avatarfirst.avatargenlib.AvatarConstants;
 import com.avatarfirst.avatargenlib.AvatarGenerator;
+import com.google.android.material.snackbar.Snackbar;
 import com.mohammedfatih.mychatapp.R;
+import com.mohammedfatih.mychatapp.activities.ChattingActivity;
 import com.mohammedfatih.mychatapp.adapter.ChatBublesAdapter;
 import com.mohammedfatih.mychatapp.interfaces.MessageListener;
+import com.mohammedfatih.mychatapp.interfaces.SnakebarMessage;
 import com.mohammedfatih.mychatapp.interfaces.UpdateMessageFragmentListener;
+import com.mohammedfatih.mychatapp.interfaces.UpdateReceiverListener;
 import com.mohammedfatih.mychatapp.models.Message;
 import com.mohammedfatih.mychatapp.models.MessageType;
 import com.mohammedfatih.mychatapp.models.Receiver;
@@ -35,10 +42,12 @@ import com.mohammedfatih.mychatapp.services.ClientConnectionHandler;
 import com.mohammedfatih.mychatapp.tools.Config;
 import com.mohammedfatih.mychatapp.viewModel.ChatViewModel;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 
-public class ChatUserFragment extends Fragment implements UpdateMessageFragmentListener , MessageListener {
+public class ChatUserFragment extends Fragment implements UpdateMessageFragmentListener ,MessageListener {
     private FragmentManager fragmentManager;
     private ChatViewModel chatViewModel;
     private final String TAG = "ChatUserFragment";
@@ -52,6 +61,7 @@ public class ChatUserFragment extends Fragment implements UpdateMessageFragmentL
     private EditText message;
     private Receiver receiver;
     private ImageButton send;
+    private SnakebarMessage snakebarMessage;
     public ChatUserFragment() {
         // Required empty public constructor
     }
@@ -105,6 +115,10 @@ public class ChatUserFragment extends Fragment implements UpdateMessageFragmentL
             //fragmentManager.popBackStack();
         });
 
+        setting_btn.setOnClickListener(event -> {
+            editIpaddressforReceiver(receiver);
+        });
+
 
         // Inflate the layout for this fragment
         return rootView;
@@ -140,7 +154,8 @@ public class ChatUserFragment extends Fragment implements UpdateMessageFragmentL
         Message tempMessage =new Message(MessageType.MESSAGE,message.getMessageText(),(Sender) message.getSender(),Config.me.getUuidSender());
         tempMessage.setDate(message.getDate());
         chatViewModel.insert(tempMessage);
-
+        snakebarMessage =  (ChattingActivity) getActivity();
+        snakebarMessage.snakeBarMessage("new message is received from "+tempMessage.getSender().getUsername());
     }
 
     @Override
@@ -151,6 +166,53 @@ public class ChatUserFragment extends Fragment implements UpdateMessageFragmentL
 
     @Override
     public void onMessageSendingFailed() {
-        requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "message is not sent please check ip address of recipient", Toast.LENGTH_SHORT).show());    }
+        requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "message is not sent please check ip address of recipient", Toast.LENGTH_SHORT).show());
+    }
+
+    private void editIpaddressforReceiver(Receiver receiver){
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        builder
+                .setView(R.layout.dialog_edit_user)
+                .setPositiveButton("Update", (dialogInterface, i) -> {
+                    EditText editText = ((AlertDialog) dialogInterface).findViewById(R.id.ipRecipient);
+                    String userInput = editText.getText().toString().trim();
+                    editText.setText(receiver.getIp());
+                    if (checkIpAddressIsConnected(userInput)){
+                        receiver.setIp(userInput);
+                        receiverViewModel.update(receiver);
+                        Snackbar.make(getActivity().findViewById(R.id.rooView),"the user "+receiver.getUsername()+" is updated ",Snackbar.LENGTH_LONG).show();
+
+                    }else {
+                        Toast.makeText(requireActivity(), "the ip you have entered is not valid or not connected", Toast.LENGTH_SHORT).show();
+                    }
+
+                })
+                .setNegativeButton("cancel", (dialogInterface, i) -> dialogInterface.dismiss());
+
+
+
+        AlertDialog alertDialog = builder.create();
+
+        alertDialog.show();
+
+
+    }
+
+    public  boolean checkIpAddressIsConnected(String ip)  {
+        Process p1 = null;
+        int returnVal = 2;
+
+        try {
+            p1 = Runtime.getRuntime().exec("ping -c 1 "+ip);
+            returnVal = p1.waitFor();
+        } catch (IOException | InterruptedException e) {
+            Log.e(TAG,"the ip you have check is invalid or incorrect more error  info " + e.getMessage());
+
+        }
+
+        return (returnVal==0);
+    }
+
+
 
 }

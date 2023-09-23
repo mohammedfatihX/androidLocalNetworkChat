@@ -6,12 +6,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.mohammedfatih.mychatapp.R;
+import com.mohammedfatih.mychatapp.fragment.ChatUserFragment;
 import com.mohammedfatih.mychatapp.fragment.ListUserfragment;
+import com.mohammedfatih.mychatapp.interfaces.SnakebarMessage;
 
-public class ChattingActivity extends AppCompatActivity {
+public class ChattingActivity extends AppCompatActivity implements SnakebarMessage {
 
 
     private final String TAG = "ChattingActivity";
@@ -23,7 +27,6 @@ public class ChattingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatting);
-
         userListFragment = new ListUserfragment();
         fragmentManager = getSupportFragmentManager();
         transaction = fragmentManager.beginTransaction();
@@ -34,8 +37,8 @@ public class ChattingActivity extends AppCompatActivity {
     }
 
 
-
-
-
-
+    @Override
+    public void snakeBarMessage(String message) {
+        Snackbar.make(findViewById(R.id.rooView),message,Snackbar.LENGTH_SHORT).show();
+    }
 }

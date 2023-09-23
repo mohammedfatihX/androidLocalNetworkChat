@@ -22,12 +22,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.avatarfirst.avatargenlib.AvatarConstants;
-import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.google.android.material.snackbar.Snackbar;
 import com.mohammedfatih.mychatapp.R;
+import com.mohammedfatih.mychatapp.activities.ChattingActivity;
 import com.mohammedfatih.mychatapp.adapter.UserAdapter;
 import com.mohammedfatih.mychatapp.interfaces.MessageListener;
+import com.mohammedfatih.mychatapp.interfaces.SnakebarMessage;
+import com.mohammedfatih.mychatapp.interfaces.UpdateMessageFragmentListener;
 import com.mohammedfatih.mychatapp.interfaces.UpdateReceiverListener;
 import com.mohammedfatih.mychatapp.interfaces.UpdateUserFragmetListener;
 import com.mohammedfatih.mychatapp.models.Message;
@@ -38,18 +39,21 @@ import com.mohammedfatih.mychatapp.models.User;
 import com.mohammedfatih.mychatapp.services.ClientConnectionHandler;
 import com.mohammedfatih.mychatapp.services.ServerConnectionsHandler;
 import com.mohammedfatih.mychatapp.tools.Config;
+import com.mohammedfatih.mychatapp.viewModel.ChatViewModel;
 import com.mohammedfatih.mychatapp.viewModel.ReceiverViewModel;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 
-public class ListUserfragment extends Fragment implements UpdateUserFragmetListener ,UpdateReceiverListener , MessageListener {
+public class ListUserfragment extends Fragment implements UpdateUserFragmetListener  ,UpdateReceiverListener , MessageListener {
 
     final static String TAG = "ListUserFragment";
     public static ReceiverViewModel receiverViewModel;
+    private ChatViewModel chatViewModel;
+    private SnakebarMessage snakebarMessage;
+
     RecyclerView recyclerViewListUser;
-    ImageView myImage;
-    private ServerSocket serverSocket;
+    Button myinfo;
 
     Button addingUser;
     UserAdapter userAdapter;
@@ -69,8 +73,7 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
                              Bundle savedInstanceState) {
         startServerSocket2listing();
         View root =inflater.inflate(R.layout.fragment_list_userfragment, container, false);
-        myImage = root.findViewById(R.id.myimage);
-        myImage.setImageDrawable(AvatarGenerator.Companion.avatarImage(getContext(),120, AvatarConstants.Companion.getCIRCLE(), "Config.me.getUsername()"));
+        myinfo = root.findViewById(R.id.info);
         addingUser = root.findViewById(R.id.addUsers_btn);
         recyclerViewListUser = root.findViewById(R.id.userLists);
         userAdapter = new UserAdapter(getContext(), user -> {
@@ -80,7 +83,9 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
             replace(R.id.fragmentplace,chatUserFragment).
             commit();
         },this);
-
+        myinfo.setOnClickListener(event ->{
+            Snackbar.make(root,"your ip is : "+Config.me.getIp(),Snackbar.LENGTH_LONG).show();
+        });
 
         addingUser.setOnClickListener(event ->{
             addReceiver();
@@ -99,12 +104,12 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         receiverViewModel = new ReceiverViewModel(requireActivity().getApplication());
-
-        receiverViewModel.getAllUsers().observe((LifecycleOwner) getActivity(), users -> {
-            Log.e(TAG," User model view detect a new User update in database");
-
-            userAdapter.setReceivers(users);
-        });
+        updateUI();
+//        receiverViewModel.getAllUsers().observe((LifecycleOwner) getActivity(), users -> {
+//            Log.e(TAG," User model view detect a new User update in database");
+//
+//            userAdapter.setReceivers(users);
+//        });
     }
 
     private void startServerSocket2listing(){
@@ -138,13 +143,27 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
         Snackbar.make(getActivity().findViewById(R.id.rooView),"a user is add ",Snackbar.LENGTH_LONG).show();
 
     }
+    private void updateUI(){
+        receiverViewModel.getAllUsers().observe((LifecycleOwner) getActivity(), users -> {
+            Log.e(TAG," User model view detect a new User update in database");
 
+            userAdapter.setReceivers(users);
+        });
+    }
     private  void messageFiltering( Message message){
         switch(message.getMessageType()){
             case MESSAGE:
                 // Toast.makeText(ChattingActivity.this,"we have recived a message",Toast.LENGTH_SHORT);
                 if (receiverViewModel.getById(message.getUuidSender()) != null){
-                        chatUserFragment.onReceivedNewMessage(message);
+
+                      chatUserFragment.onReceivedNewMessage(message);
+
+
+
+                    snakebarMessage = (ChattingActivity) getActivity();
+                    snakebarMessage.snakeBarMessage("the user "+message.getSender().getUsername()
+                            +" Sent you message ");
+
                 }else {
                     welcomingUsers(message.getSender());
                 }
@@ -157,6 +176,7 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
                 Log.e(TAG,"the message recieved is  : "+message);
                 if(receiverViewModel.getById(message.getUuidSender()) != null){
                     Log.e(TAG,"the user is exist in the databese");
+
 
                 }else {
                     Log.e(TAG,"then new user is not exist in the databese");
@@ -197,13 +217,15 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
         if (tempMessage.getType() == MessageType.NEWCONNECTION){
             Log.e(TAG, "new user Position");
             receiverViewModel.insert(new Receiver(tempMessage.getSender().getUsername(),tempMessage.getSender().getIp(),null,((Sender)tempMessage.getSender()).getUuidSender()));
-            Snackbar.make(getActivity().findViewById(R.id.rooView),"the user "+message.getSender().getUsername()+" is Removed ",Snackbar.LENGTH_LONG).show();
+            Snackbar.make(getActivity().findViewById(R.id.rooView),"the user "+message.getSender().getUsername()+" is Added ",Snackbar.LENGTH_LONG).show();
 
         }
     }
 
 
-        public  boolean checkIpAddressIsConnected(String ip)  {
+
+
+    public  boolean checkIpAddressIsConnected(String ip)  {
             Process p1 = null;
             int returnVal = 2;
 
@@ -285,4 +307,7 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
             Toast.makeText(getContext(), "this user is not connected", Toast.LENGTH_SHORT).show();
         });
     }
+
+
+
 }
