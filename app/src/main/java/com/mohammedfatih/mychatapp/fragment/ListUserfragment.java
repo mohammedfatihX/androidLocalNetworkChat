@@ -45,12 +45,12 @@ import com.mohammedfatih.mychatapp.viewModel.ReceiverViewModel;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-public class ListUserfragment extends Fragment implements UpdateUserFragmetListener  ,UpdateReceiverListener , MessageListener {
+public class ListUserfragment extends Fragment implements UpdateUserFragmetListener  ,UpdateReceiverListener , MessageListener , SnakebarMessage {
 
     final static String TAG = "ListUserFragment";
     public static ReceiverViewModel receiverViewModel;
     private ChatViewModel chatViewModel;
-    private SnakebarMessage snakebarMessage;
+    private ChattingActivity chattingActivity;
 
     RecyclerView recyclerViewListUser;
     Button myinfo;
@@ -67,12 +67,14 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
 
 
 
+
     @SuppressLint("MissingInflatedId")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         startServerSocket2listing();
         View root =inflater.inflate(R.layout.fragment_list_userfragment, container, false);
+        this.chattingActivity  = (ChattingActivity) getActivity();
         myinfo = root.findViewById(R.id.info);
         addingUser = root.findViewById(R.id.addUsers_btn);
         recyclerViewListUser = root.findViewById(R.id.userLists);
@@ -157,12 +159,7 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
                 if (receiverViewModel.getById(message.getUuidSender()) != null){
 
                       chatUserFragment.onReceivedNewMessage(message);
-
-
-
-                    snakebarMessage = (ChattingActivity) getActivity();
-                    snakebarMessage.snakeBarMessage("the user "+message.getSender().getUsername()
-                            +" Sent you message ");
+                      chattingActivity.snakeBarMessage("you have a new message from "+message.getSender().getUsername());
 
                 }else {
                     welcomingUsers(message.getSender());
@@ -309,5 +306,8 @@ public class ListUserfragment extends Fragment implements UpdateUserFragmetListe
     }
 
 
+    @Override
+    public void snakeBarMessage(String message) {
 
+    }
 }

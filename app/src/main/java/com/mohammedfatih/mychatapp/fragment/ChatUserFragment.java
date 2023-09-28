@@ -61,7 +61,7 @@ public class ChatUserFragment extends Fragment implements UpdateMessageFragmentL
     private EditText message;
     private Receiver receiver;
     private ImageButton send;
-    private SnakebarMessage snakebarMessage;
+    private ChattingActivity chattingActivity;
     public ChatUserFragment() {
         // Required empty public constructor
     }
@@ -80,7 +80,7 @@ public class ChatUserFragment extends Fragment implements UpdateMessageFragmentL
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_chat_user, container, false);
-
+        this.chattingActivity = (ChattingActivity) getActivity();
         Bundle args = getArguments();
         if (args != null) {
             receiver = (Receiver) args.getSerializable("recipient");
@@ -154,8 +154,7 @@ public class ChatUserFragment extends Fragment implements UpdateMessageFragmentL
         Message tempMessage =new Message(MessageType.MESSAGE,message.getMessageText(),(Sender) message.getSender(),Config.me.getUuidSender());
         tempMessage.setDate(message.getDate());
         chatViewModel.insert(tempMessage);
-        snakebarMessage =  (ChattingActivity) getActivity();
-        snakebarMessage.snakeBarMessage("new message is received from "+tempMessage.getSender().getUsername());
+     //   chattingActivity.snakeBarMessage("new message is received from "+tempMessage.getSender().getUsername());
     }
 
     @Override
