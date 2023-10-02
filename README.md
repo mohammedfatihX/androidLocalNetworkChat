@@ -83,6 +83,7 @@ This is a chat app that works locally (in local wifi ).
 
   - **enhancement UI App , specially Dark Mode**
   - **edit landscape ui option**
+  - **add profile picture**
   - **update the position in chat fragment to poseitioned in last message**
   - **add the video call using WEBRTC**
   - **block users**
@@ -92,7 +93,7 @@ This is a chat app that works locally (in local wifi ).
   - Android Studio
   - Java 8
   - Android SDK
-  - 
+
 ##  Instructions
   1. Clone the repository to your local machine.
   2. Open the project in Android Studio.
